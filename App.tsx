@@ -92,14 +92,7 @@ const TopHeader = () => (
   </div>
 );
 
-const FloatingSidebar = () => (
-  <div className="fixed right-0 top-1/2 -translate-y-1/2 z-[60] flex flex-col bg-[#1a1a1a]/90 border border-white/5 rounded-l-lg p-2 md:p-3 space-y-4 md:space-y-6 shadow-2xl">
-    <Facebook size={18} className="text-white hover:text-[#f48225] cursor-pointer" />
-    <Instagram size={18} className="text-white hover:text-[#f48225] cursor-pointer" />
-    <Twitter size={18} className="text-white hover:text-[#f48225] cursor-pointer" />
-    <MessageCircle size={18} className="text-white hover:text-[#f48225] cursor-pointer" />
-  </div>
-);
+
 
 const Navbar = ({ onNavigate, currentPage, onSelectBrand }) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -301,18 +294,18 @@ const ServiceDetailsPage = ({ service, onSelectService, onNavigate }: { service:
   useEffect(() => window.scrollTo(0, 0), [service]);
   return (
     <div className="bg-black text-white min-h-screen pt-20">
-      <section className="py-16 md:py-24 text-center bg-[#0a0a0a] px-6">
+      <section className="py-8 md:py-12 text-center bg-[#0a0a0a] px-6">
         <h1 className="text-4xl md:text-6xl lg:text-8xl font-black uppercase tracking-tight mb-4 font-display">{service.title}</h1>
         <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 text-[9px] md:text-[11px] font-bold tracking-[0.2em] md:tracking-[0.3em] uppercase">
           <button onClick={() => onNavigate('home')} className="text-white opacity-50 font-black hover:text-[#f48225] transition-colors">HOME</button>
-          <span className="text-[#f48225]">â€¢</span>
+
           <button onClick={() => onNavigate('services')} className="text-white opacity-50 font-black hover:text-[#f48225] transition-colors">SERVICES</button>
-          <span className="text-[#f48225]">â€¢</span>
+
           <span className="text-[#f48225] font-black">{service.title}</span>
         </div>
       </section>
 
-      <section className="max-w-[1700px] mx-auto px-6 md:px-10 py-12 md:py-24 flex flex-col lg:flex-row gap-12 md:gap-20">
+      <section className="max-w-[1700px] mx-auto px-6 md:px-10 pb-12 md:pb-24 pt-4 md:pt-8 flex flex-col lg:flex-row gap-12 md:gap-20">
         <div className="lg:w-3/4 order-2 lg:order-1">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 animate-slide-up">
             {service.gallery?.map((img, idx) => (
@@ -366,17 +359,39 @@ const ServiceDetailsPage = ({ service, onSelectService, onNavigate }: { service:
 
 const ContactPage = () => {
   useEffect(() => window.scrollTo(0, 0), []);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    subject: '',
+    message: ''
+  });
+  const [formStatus, setFormStatus] = useState<'idle' | 'submitted'>('idle');
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const { name, email, subject, message } = formData;
+    const mailtoLink = `mailto:studio@styleincar.com?subject=${encodeURIComponent(subject || 'Inquiry from Website')}&body=${encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`)}`;
+    window.location.href = mailtoLink;
+    setFormStatus('submitted');
+    setFormData({ name: '', email: '', subject: '', message: '' });
+    setTimeout(() => setFormStatus('idle'), 5000);
+  };
+
   return (
     <div className="bg-black text-white min-h-screen pt-20">
-      <section className="py-16 md:py-24 text-center bg-[#0a0a0a] px-6">
+      <section className="py-8 md:py-12 text-center bg-[#0a0a0a] px-6">
         <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tight mb-2 font-display">Contact Us</h1>
         <div className="flex items-center justify-center space-x-2 text-[10px] md:text-[11px] font-bold tracking-[0.3em] uppercase">
           <span className="text-white opacity-50 font-black">HOME</span>
-          <span className="text-[#f48225]">â€¢</span>
+
           <span className="text-[#f48225] font-black">GET IN TOUCH</span>
         </div>
       </section>
-      <section className="max-w-[1700px] mx-auto px-6 md:px-10 py-16 md:py-24 grid lg:grid-cols-2 gap-16 md:gap-20">
+      <section className="max-w-[1700px] mx-auto px-6 md:px-10 pb-16 md:pb-24 pt-4 md:pt-8 grid lg:grid-cols-2 gap-16 md:gap-20">
         <div>
           <h2 className="text-3xl md:text-5xl font-black uppercase mb-10 font-display leading-tight">Let's Discuss <br /><span className="text-[#f48225]">Your Project</span></h2>
           <div className="space-y-8 md:space-y-12">
@@ -394,19 +409,27 @@ const ContactPage = () => {
             </div>
           </div>
         </div>
-        <div className="bg-[#111111] border border-white/5 p-8 md:p-12 shadow-2xl rounded-sm">
-          <form className="space-y-6 md:space-y-8" onSubmit={(e) => e.preventDefault()}>
-            <div className="grid md:grid-cols-2 gap-6 md:gap-8">
-              <input type="text" placeholder="FULL NAME" className="bg-transparent border-b border-white/20 py-4 text-[10px] font-black uppercase tracking-widest focus:border-[#f48225] transition-colors outline-none w-full" />
-              <input type="email" placeholder="EMAIL ADDRESS" className="bg-transparent border-b border-white/20 py-4 text-[10px] font-black uppercase tracking-widest focus:border-[#f48225] transition-colors outline-none w-full" />
+        <div className="bg-[#111111] border border-white/5 p-8 md:p-12 shadow-2xl rounded-sm relative">
+          {formStatus === 'submitted' ? (
+            <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#111111] z-10 animate-fade-in p-6 text-center">
+              <CheckCircle2 className="w-16 h-16 text-[#f48225] mb-4" />
+              <h3 className="text-2xl font-black uppercase text-white mb-2">Message Drafted!</h3>
+              <p className="text-gray-400 text-sm font-bold uppercase tracking-widest">Opening your email client to send the message...</p>
             </div>
-            <input type="text" placeholder="SUBJECT" className="bg-transparent border-b border-white/20 py-4 text-[10px] font-black uppercase tracking-widest focus:border-[#f48225] transition-colors outline-none w-full" />
-            <textarea placeholder="TELL US ABOUT YOUR CAR" rows={4} className="bg-transparent border-b border-white/20 py-4 text-[10px] font-black uppercase tracking-widest focus:border-[#f48225] transition-colors outline-none w-full resize-none"></textarea>
-            <button className="btn-plus w-full justify-center group h-14 md:h-16">
-              <span className="btn-plus-text">SEND MESSAGE</span>
-              <div className="btn-plus-icon group-hover:bg-black/40 transition-colors"><Send size={18} /></div>
-            </button>
-          </form>
+          ) : (
+            <form className="space-y-6 md:space-y-8" onSubmit={handleSubmit}>
+              <div className="grid md:grid-cols-2 gap-6 md:gap-8">
+                <input name="name" value={formData.name} onChange={handleChange} type="text" placeholder="FULL NAME" className="bg-transparent border-b border-white/20 py-4 text-[10px] font-black uppercase tracking-widest focus:border-[#f48225] transition-colors outline-none w-full" required />
+                <input name="email" value={formData.email} onChange={handleChange} type="email" placeholder="EMAIL ADDRESS" className="bg-transparent border-b border-white/20 py-4 text-[10px] font-black uppercase tracking-widest focus:border-[#f48225] transition-colors outline-none w-full" required />
+              </div>
+              <input name="subject" value={formData.subject} onChange={handleChange} type="text" placeholder="SUBJECT" className="bg-transparent border-b border-white/20 py-4 text-[10px] font-black uppercase tracking-widest focus:border-[#f48225] transition-colors outline-none w-full" required />
+              <textarea name="message" value={formData.message} onChange={handleChange} placeholder="TELL US ABOUT YOUR CAR" rows={4} className="bg-transparent border-b border-white/20 py-4 text-[10px] font-black uppercase tracking-widest focus:border-[#f48225] transition-colors outline-none w-full resize-none" required></textarea>
+              <button type="submit" className="btn-plus w-full justify-center group h-14 md:h-16">
+                <span className="btn-plus-text">SEND MESSAGE</span>
+                <div className="btn-plus-icon group-hover:bg-black/40 transition-colors"><Send size={18} /></div>
+              </button>
+            </form>
+          )}
         </div>
       </section>
     </div>
@@ -461,9 +484,9 @@ const FeatureGridSection = () => (
       </div>
       <div className="grid lg:grid-cols-2 gap-8 md:gap-10">
         <div className="relative group overflow-hidden shadow-2xl rounded-sm aspect-[4/3] lg:aspect-auto h-full min-h-[300px] md:min-h-[500px]">
-          <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=1200" className="w-full h-full object-cover brightness-[0.6] group-hover:brightness-75 transition-all duration-700" alt="Modified Thar" />
+          <img src="https://upload.wikimedia.org/wikipedia/commons/9/94/2020_Bentley_Bentayga_facelift.jpg" className="w-full h-full object-cover brightness-[0.6] group-hover:brightness-75 transition-all duration-700" alt="Luxury Car" />
           <div className="absolute top-6 left-6 md:top-10 md:left-10 text-left">
-            <h3 className="text-3xl md:text-5xl font-black text-white font-display tracking-tighter opacity-90 drop-shadow-2xl">MOST <span className="text-[#f48225] block">BADASS</span> ROXX</h3>
+            <h3 className="text-3xl md:text-5xl font-black text-white font-display tracking-tighter opacity-90 drop-shadow-2xl">PREMIUM <span className="text-[#f48225] block">CUSTOMIZATION</span></h3>
           </div>
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="w-16 h-16 md:w-24 md:h-24 bg-[#f48225] rounded-full flex flex-col items-center justify-center text-white cursor-pointer hover:scale-110 shadow-2xl transition-transform border-4 md:border-[6px] border-black/20">
@@ -508,7 +531,7 @@ const DetailedWireframeFeatures = () => (
           {[
             { title: "Experience & Expertise (Since 2016)", desc: "Nearly a decade in premium car customization. We have perfected the art of transforming vehicles inside and out.", id: "x66" },
             { title: "Complete Customization", desc: "From custom seat covers to leather-wrapped steering wheels, we deliver high-quality modifications tailored for you.", id: "x65" },
-            { title: "Customization Specialists", desc: "Experts in high-end vehicle modification, offering exclusive upgrades that combine durability with luxury looks.", id: "x66" }
+            { title: "Luxury Customization Experts", desc: "Experts in high-end vehicle modification, offering exclusive upgrades that combine durability with luxury looks.", id: "x66" }
           ].map((item, i) => (
             <div key={i} className="group">
               <div className="flex items-center justify-center lg:justify-end space-x-4 mb-4">
@@ -577,15 +600,15 @@ const BrandModelsPage = ({ brand }: { brand: BrandInfo }) => {
   useEffect(() => window.scrollTo(0, 0), []);
   return (
     <div className="bg-black text-white min-h-screen pt-20">
-      <section className="py-16 md:py-24 text-center bg-[#0a0a0a] px-6">
+      <section className="py-8 md:py-12 text-center bg-[#0a0a0a] px-6">
         <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tight mb-2 font-display leading-tight">{brand.name}</h1>
         <div className="flex items-center justify-center space-x-2 text-[10px] md:text-[11px] font-bold tracking-[0.3em] uppercase">
           <span className="text-white opacity-50 font-black">OUR WORK</span>
-          <span className="text-[#f48225]">â€¢</span>
+
           <span className="text-[#f48225] font-black">{brand.name} PORTFOLIO</span>
         </div>
       </section>
-      <section className="max-w-[1700px] mx-auto px-6 md:px-10 py-16 md:py-24">
+      <section className="max-w-[1700px] mx-auto px-6 md:px-10 pb-16 md:pb-24 pt-4 md:pt-8">
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
           {brand.models.map((model, idx) => (
             <div key={idx} className="bg-[#111111] border border-white/5 flex flex-col group transition-all duration-500 shadow-2xl overflow-hidden animate-slide-up rounded-sm" style={{ animationDelay: `${idx * 0.1}s` }}>
@@ -611,7 +634,7 @@ const AllBrandsPage = ({ onSelectBrand }: { onSelectBrand: (brand: BrandInfo) =>
   useEffect(() => window.scrollTo(0, 0), []);
   return (
     <div className="bg-black text-white min-h-screen pt-20">
-      <section className="py-16 md:py-24 text-center bg-[#0a0a0a] px-6">
+      <section className="py-8 md:py-12 text-center bg-[#0a0a0a] px-6">
         <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tight mb-2 font-display">All Brands</h1>
         <div className="flex items-center justify-center space-x-2 text-[10px] md:text-[11px] font-bold tracking-[0.3em] uppercase">
           <span className="text-white opacity-50 font-black">HOME</span>
@@ -619,7 +642,7 @@ const AllBrandsPage = ({ onSelectBrand }: { onSelectBrand: (brand: BrandInfo) =>
           <span className="text-[#f48225] font-black">BRAND COLLECTION</span>
         </div>
       </section>
-      <section className="max-w-[1700px] mx-auto px-6 md:px-10 py-16 md:py-24">
+      <section className="max-w-[1700px] mx-auto px-6 md:px-10 pb-16 md:pb-24 pt-4 md:pt-8">
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
           {BRANDS_DETAILED.map((brand, idx) => (
             <div key={idx} className="brand-card bg-[#111111] border border-white/5 flex flex-col group transition-all duration-500 hover:border-[#f48225]/30 shadow-2xl relative rounded-sm">
@@ -686,15 +709,14 @@ const ServicesPage = ({ onSelectService }: { onSelectService: (s: Service) => vo
   useEffect(() => window.scrollTo(0, 0), []);
   return (
     <div className="bg-black text-white min-h-screen pt-20">
-      <section className="py-16 md:py-24 text-center bg-[#0a0a0a] px-6">
+      <section className="py-8 md:py-12 text-center bg-[#0a0a0a] px-6">
         <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tight mb-2 font-display">Our Services</h1>
         <div className="flex items-center justify-center space-x-2 text-[10px] md:text-[11px] font-bold tracking-[0.3em] uppercase">
           <span className="text-white opacity-50 font-black">HOME</span>
-          {/* <span className="text-[#f48225]">â€¢</span> */}
           <span className="text-[#f48225] font-black">ELITE MODIFICATIONS</span>
         </div>
       </section>
-      <section className="max-w-[1700px] mx-auto px-6 md:px-10 py-16 md:py-24">
+      <section className="max-w-[1700px] mx-auto px-6 md:px-10 pb-16 md:pb-24 pt-4 md:pt-8">
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
           {SERVICES.map((service, idx) => (
             <div
@@ -926,26 +948,26 @@ const AboutPage = ({ onNavigate }: { onNavigate: (p: string) => void }) => {
   return (
     <div className="bg-black text-white min-h-screen pt-20">
       {/* Header Section */}
-      <section className="py-16 md:py-24 text-center bg-[#0a0a0a] px-6">
+      <section className="py-8 md:py-12 text-center bg-[#0a0a0a] px-6">
         <h1 className="text-5xl md:text-8xl font-black uppercase tracking-tight mb-4 font-display">About Us</h1>
         <div className="flex items-center justify-center space-x-2 text-[10px] md:text-[11px] font-bold tracking-[0.3em] uppercase">
           <button onClick={() => onNavigate('home')} className="text-white opacity-50 font-black hover:text-[#f48225]">HOME</button>
-          <span className="text-[#f48225]">â€¢</span>
+
           <span className="text-[#f48225] font-black">ABOUT US</span>
         </div>
       </section>
 
       {/* Hero Content Section */}
-      <section className="max-w-[1700px] mx-auto px-6 md:px-10 py-16 md:py-24 animate-slide-up">
+      <section className="max-w-[1700px] mx-auto px-6 md:px-10 pb-16 md:pb-24 pt-4 md:pt-8 animate-slide-up">
         <div className="max-w-6xl mx-auto">
-          {/* Mafia Thar Image */}
+          {/* Premium Luxury Image */}
           <div className="relative mb-16 overflow-hidden rounded-sm group shadow-[0_0_50px_rgba(244,130,37,0.15)]">
-            <img src="https://images.unsplash.com/photo-1533473359331-0135ef1b58bf?auto=format&fit=crop&q=80&w=1200" className="w-full h-auto brightness-90 group-hover:scale-105 transition-transform duration-1000" alt="MAFIA THAR ROXX" />
+            <img src="https://i.pinimg.com/1200x/87/db/c3/87dbc3d09d589130dd651f3d7fc07258.jpg" className="w-full h-auto brightness-90 group-hover:scale-105 transition-transform duration-1000" alt="Premium Luxury Car" />
             <div className="absolute bottom-6 left-6 md:bottom-12 md:left-12 flex flex-col items-start leading-none pointer-events-none">
-              <h2 className="text-5xl md:text-[120px] font-black text-white italic tracking-tighter opacity-90 drop-shadow-2xl">MAFIA</h2>
-              <div className="flex items-baseline space-x-4 -mt-4 md:-mt-10">
-                <span className="text-2xl md:text-5xl font-black text-[#f48225] uppercase tracking-widest italic">THAR</span>
-                <span className="text-2xl md:text-5xl font-black text-white uppercase tracking-[0.5em] italic">ROXX</span>
+              <h2 className="text-5xl md:text-[120px] font-black text-white italic tracking-tighter opacity-90 drop-shadow-2xl">PREMIUM</h2>
+              <div className="flex items-baseline space-x-4 -mt-2 md:-mt-5">
+                <span className="text-2xl md:text-5xl font-black text-[#f48225] uppercase tracking-widest italic">LUXURY</span>
+                <span className="text-2xl md:text-5xl font-black text-white uppercase tracking-[0.5em] italic">STYLING</span>
               </div>
             </div>
           </div>
@@ -963,8 +985,8 @@ const AboutPage = ({ onNavigate }: { onNavigate: (p: string) => void }) => {
 
             <div className="space-y-8 text-gray-400 text-xs md:text-sm font-bold uppercase tracking-widest leading-loose">
               <p>With a strong presence in the automobile industry, we specialize in custom interior and exterior modifications, ensuring that every vehicle reflects its owner's personality and style.</p>
-              <p>Our services include: Custom Seat Covers â€“ Premium-quality materials tailored to perfection, Leather-Wrapped Steering Wheels â€“ Elevate the driving experience with handcrafted luxury, Infotainment Upgrades â€“ State-of-the-art audio and entertainment systems, Exterior Modifications â€“ Sleek enhancements for a high-end look.</p>
-              <p>As THAR Customization Experts, we specialize in exclusive makeovers for the legendary off-roader. With a dedicated team of professionals and a passion for innovation, we have proudly served 50,000+ satisfied customers across the UAE and beyond, transforming their vehicles into stunning masterpieces. Our strong social media presence further showcases our expertise and customer satisfaction, making us a trusted name in the automotive styling industry. Stylein Car â€“ Where Style Meets Innovation!</p>
+              <p>Our services include: Custom Seat Covers - Premium-quality materials tailored to perfection, Leather-Wrapped Steering Wheels - Elevate the driving experience with handcrafted luxury, Infotainment Upgrades - State-of-the-art audio and entertainment systems, Exterior Modifications - Sleek enhancements for a high-end look.</p>
+              <p>As Luxury Customization Experts, we specialize in exclusive makeovers for premium vehicles. With a dedicated team of professionals and a passion for innovation, we have proudly served 40,000+ satisfied customers across the UAE and beyond, transforming their vehicles into stunning masterpieces. Our strong social media presence further showcases our expertise and customer satisfaction, making us a trusted name in the automotive styling industry. Stylein Car - Where Style Meets Innovation!</p>
             </div>
           </div>
         </div>
@@ -1012,8 +1034,8 @@ const AboutPage = ({ onNavigate }: { onNavigate: (p: string) => void }) => {
             <div className="lg:w-1/3 space-y-16 text-center lg:text-right">
               {[
                 { title: "Experience & Expertise (Since 2016)", desc: "With nearly a decade in premium car customization, Stylein Car has perfected the art of transforming vehicles inside and out. Our deep industry knowledge and hands-on expertise ensure modifications that boost style, comfort, and performance.", id: "x66" },
-                { title: "Complete Customization â€“ Interior & Exterior", desc: "From custom seat covers and leather-wrapped steering wheels to infotainment upgrades and exterior makeovers, we deliver high-quality car modifications designed around your preferences.", id: "x65" },
-                { title: "THAR Customization Specialists", desc: "As THAR modification experts, we offer exclusive upgrades that combine rugged durability with a premium, personalized look, enhancing both style and off-road capability.", id: "x66" }
+                { title: "Complete Customization - Interior & Exterior", desc: "From custom seat covers and leather-wrapped steering wheels to infotainment upgrades and exterior makeovers, we deliver high-quality car modifications designed around your preferences.", id: "x65" },
+                { title: "Luxury Customization Specialists", desc: "As premium vehicle experts, we offer exclusive upgrades that combine elegance with a personalized look, enhancing both style and luxury.", id: "x66" }
               ].map((item, i) => (
                 <div key={i} className="group">
                   <div className="flex items-center justify-center lg:justify-end space-x-4 mb-4">
@@ -1122,7 +1144,7 @@ export default function App() {
       {showSplash && <SplashScreen isFinished={splashFinished} />}
       <div className={`transition-opacity duration-1000 ${showSplash && !splashFinished ? 'opacity-0' : 'opacity-100'}`}>
         <TopHeader />
-        <FloatingSidebar />
+
         <Navbar onNavigate={handleNavigate} onSelectBrand={handleSelectBrand} currentPage={currentPage} />
         {currentPage === 'home' ? <Home onNavigate={handleNavigate} onSelectBrand={handleSelectBrand} onSelectService={handleSelectService} /> :
           currentPage === 'services' ? <ServicesPage onSelectService={handleSelectService} /> :
