@@ -1,20 +1,15 @@
 const https = require('https');
 
 // Known Pexels IDs for Toyota Camry / Similar Sedans (Interior/Exterior)
-// Since I can't browse, I'm using a mix of specific ID patterns I've seen before or generic high quality ones.
-// Actually, I will search for these specific IDs on Google via `search_web` first to confirm they exist?
-// No, I'll just try to construct valid Pexels URLs and check if they return 200 OK.
-
 const potentialIds = [
-    // Exterior Candidates (White/Silver Sedans like Camry)
     '11491335', // Modern white sedan
-    '170811',   // Silver sedan side profile
+    '170811',   // Silver sedan side profile (Porsche-ish but good generic)
     '112460',   // Generic luxury car front
     '120049',   // Car on road
     '3802510',  // White car studio
     '1592384',  // Modern car front
 
-    // Interior Candidates (Beige/Black Inteiors)
+    // Interior
     '376361',   // Generic luxury interior
     '164634',   // Steering wheel close up
     '804130',   // Car dashboard
@@ -22,23 +17,28 @@ const potentialIds = [
     '687653'    // Modern dashboard
 ];
 
-const checkUrl = (id) => {
+function checkUrl(id) {
     return new Promise((resolve) => {
+        // Pexels image URL pattern
         const url = `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=800`;
+
         https.get(url, (res) => {
             if (res.statusCode === 200) {
                 console.log(`VALID: ${url}`);
                 resolve(url);
             } else {
+                // Try alternate extension .jpg
+                const urlJpg = `https://images.pexels.com/photos/${id}/pexels-photo-${id}.jpeg?auto=compress&cs=tinysrgb&w=800`;
+                // actually just resolve null for now to be safe
                 console.log(`INVALID: ${id} (${res.statusCode})`);
                 resolve(null);
             }
         }).on('error', (e) => {
-            console.error(`ERROR: ${id}`, e);
+            console.error(`ERROR: ${id}`, e.message);
             resolve(null);
         });
     });
-};
+}
 
 async function checkAll() {
     console.log("Checking potential Pexels IDs...");
@@ -47,7 +47,7 @@ async function checkAll() {
         const url = await checkUrl(id);
         if (url) validUrls.push(url);
     }
-    console.log("\nValid URLs found:", validUrls);
+    console.log("Completed.");
 }
 
 checkAll();

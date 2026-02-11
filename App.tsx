@@ -6,7 +6,7 @@ import {
   ArrowUpRight, Music, Disc, Wind, MoveLeft, Users, Layers, Paintbrush, ChevronDown,
   Send, Globe
 } from 'lucide-react';
-import { SERVICES, BRANDS_DETAILED, BrandInfo } from './constants';
+import { SERVICES, BRANDS_DETAILED, BrandInfo, ModelInfo } from './constants';
 import { Service } from './types';
 import logo from './logo2.png';
 
@@ -596,7 +596,78 @@ const CallToActionBar = () => (
   </section>
 );
 
-const BrandModelsPage = ({ brand }: { brand: BrandInfo }) => {
+const ModelGalleryPage = ({ model, brandName, onNavigate }: { model: ModelInfo, brandName: string, onNavigate: (p: string) => void }) => {
+  const [activeTab, setActiveTab] = useState<'interior' | 'exterior'>('interior');
+
+  useEffect(() => window.scrollTo(0, 0), [model]);
+
+  const images = activeTab === 'interior' ? (model.interior || []) : (model.exterior || []);
+
+  return (
+    <div className="bg-black text-white min-h-screen pt-20">
+      <section className="py-8 md:py-12 text-center bg-[#0a0a0a] px-6">
+        <h1 className="text-4xl md:text-6xl lg:text-8xl font-black uppercase tracking-tight mb-4 font-display">{model.name}</h1>
+        <div className="flex flex-wrap items-center justify-center gap-2 md:gap-3 text-[9px] md:text-[11px] font-bold tracking-[0.2em] md:tracking-[0.3em] uppercase">
+          <button onClick={() => onNavigate('home')} className="text-white opacity-50 font-black hover:text-[#f48225] transition-colors">HOME</button>
+          <span className="text-white opacity-50 font-black">/</span>
+          <button onClick={() => onNavigate('work')} className="text-white opacity-50 font-black hover:text-[#f48225] transition-colors">BRANDS</button>
+          <span className="text-white opacity-50 font-black">/</span>
+          <span className="text-[#f48225] font-black">{brandName}</span>
+        </div>
+      </section>
+
+      <section className="max-w-[1700px] mx-auto px-6 md:px-10 pb-12 md:pb-24 pt-4 md:pt-8 flex flex-col lg:flex-row gap-12 md:gap-20">
+        <div className="lg:w-3/4 order-2 lg:order-1">
+          <div className="flex items-center space-x-6 mb-8 border-b border-white/10 pb-4">
+            <button
+              onClick={() => setActiveTab('interior')}
+              className={`text-lg md:text-2xl font-black uppercase tracking-widest transition-colors ${activeTab === 'interior' ? 'text-[#f48225]' : 'text-gray-500 hover:text-white'}`}
+            >
+              Interior
+            </button>
+            <button
+              onClick={() => setActiveTab('exterior')}
+              className={`text-lg md:text-2xl font-black uppercase tracking-widest transition-colors ${activeTab === 'exterior' ? 'text-[#f48225]' : 'text-gray-500 hover:text-white'}`}
+            >
+              Exterior
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 animate-slide-up">
+            {images.length > 0 ? images.map((img, idx) => (
+              <div key={idx} className="relative aspect-square overflow-hidden group border border-white/5 rounded-sm">
+                <img src={img} className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" alt={`${model.name} ${activeTab} ${idx}`} />
+                <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors"></div>
+              </div>
+            )) : (
+              <div className="col-span-full py-20 text-center text-gray-500 font-black uppercase tracking-widest">No {activeTab} images available yet.</div>
+            )}
+          </div>
+        </div>
+
+        <div className="lg:w-1/4 space-y-12 order-1 lg:order-2">
+          <div className="relative group overflow-hidden rounded-sm shadow-2xl">
+            <img src={model.image} className="w-full h-[300px] object-cover brightness-[0.4]" alt="Model Preview" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#f48225] via-transparent to-transparent opacity-80"></div>
+            <div className="absolute bottom-8 left-8 right-8">
+              <h3 className="text-xl md:text-2xl font-black text-white uppercase font-display leading-tight mb-4">Interested in <br /><span className="text-white">{model.name}?</span></h3>
+              <div className="bg-white p-4 rounded-sm flex items-center space-x-3 shadow-2xl cursor-pointer hover:scale-105 transition-transform" onClick={() => onNavigate('contact')}>
+                {/* Fixed invalid md:size prop on Phone icon by using Tailwind responsive classes */}
+                <div className="w-10 h-10 bg-[#f48225] rounded-full flex items-center justify-center text-white shrink-0"><Phone className="w-4 h-4 md:w-[18px] md:h-[18px]" fill="white" /></div>
+                <div className="flex flex-col">
+                  <span className="text-[8px] text-gray-500 font-black uppercase tracking-widest">Book Now</span>
+                  <span className="text-lg font-black text-black tracking-tight">+971 504178786</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  );
+};
+
+const BrandModelsPage = ({ brand, onSelectModel, onNavigate }: { brand: BrandInfo, onSelectModel: (m: ModelInfo) => void, onNavigate: (p: string) => void }) => {
   useEffect(() => window.scrollTo(0, 0), []);
   return (
     <div className="bg-black text-white min-h-screen pt-20">
@@ -620,7 +691,7 @@ const BrandModelsPage = ({ brand }: { brand: BrandInfo }) => {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent"></div>
               </div>
               <div className="p-6 md:p-8 mt-auto border-t border-white/5">
-                <button className="w-full bg-black border border-white/10 py-4 md:py-6 text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] md:tracking-[0.5em] text-white hover:bg-[#f48225] hover:text-black transition-all">CHECK GALLERY</button>
+                <button onClick={() => onSelectModel(model)} className="w-full bg-black border border-white/10 py-4 md:py-6 text-[10px] md:text-[11px] font-black uppercase tracking-[0.4em] md:tracking-[0.5em] text-white hover:bg-[#f48225] hover:text-black transition-all">CHECK GALLERY</button>
               </div>
             </div>
           ))}
@@ -1110,6 +1181,7 @@ export default function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [splashFinished, setSplashFinished] = useState(false);
   const [selectedBrand, setSelectedBrand] = useState<BrandInfo | null>(null);
+  const [selectedModel, setSelectedModel] = useState<ModelInfo | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
 
   useEffect(() => {
@@ -1123,6 +1195,7 @@ export default function App() {
   const handleNavigate = (page: string) => {
     setCurrentPage(page);
     setSelectedBrand(null);
+    setSelectedModel(null);
     setSelectedService(null);
     window.scrollTo(0, 0);
   };
@@ -1130,6 +1203,12 @@ export default function App() {
   const handleSelectBrand = (brand: BrandInfo) => {
     setSelectedBrand(brand);
     setCurrentPage('brand-models');
+    window.scrollTo(0, 0);
+  };
+
+  const handleSelectModel = (model: ModelInfo) => {
+    setSelectedModel(model);
+    setCurrentPage('model-gallery');
     window.scrollTo(0, 0);
   };
 
@@ -1151,8 +1230,9 @@ export default function App() {
             currentPage === 'about' ? <AboutPage onNavigate={handleNavigate} /> :
               currentPage === 'work' ? <AllBrandsPage onSelectBrand={handleSelectBrand} /> :
                 currentPage === 'contact' ? <ContactPage /> :
-                  currentPage === 'brand-models' && selectedBrand ? <BrandModelsPage brand={selectedBrand} /> :
-                    currentPage === 'service-details' && selectedService ? <ServiceDetailsPage service={selectedService} onSelectService={handleSelectService} onNavigate={handleNavigate} /> : null
+                  currentPage === 'brand-models' && selectedBrand ? <BrandModelsPage brand={selectedBrand} onSelectModel={handleSelectModel} onNavigate={handleNavigate} /> :
+                    currentPage === 'model-gallery' && selectedBrand && selectedModel ? <ModelGalleryPage model={selectedModel} brandName={selectedBrand.name} onNavigate={handleNavigate} /> :
+                      currentPage === 'service-details' && selectedService ? <ServiceDetailsPage service={selectedService} onSelectService={handleSelectService} onNavigate={handleNavigate} /> : null
         }
         <Footer onNavigate={handleNavigate} />
       </div>
